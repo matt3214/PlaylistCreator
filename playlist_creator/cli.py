@@ -7,12 +7,13 @@
 import argparse
 import sys
 import threading
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import numpy as np
 
 from playlist_creator import cluster as clustering
-from playlist_creator import jev, playlists, report, summarize, youtube
+from playlist_creator import jev, playlists, report, report_html, summarize, youtube
 from playlist_creator.openrouter import OpenRouter
 from playlist_creator.store import Store
 
@@ -207,7 +208,13 @@ def cmd_report(args, store: Store) -> None:
     built = report.build(select(store, args), plist, args.threshold, args.review_floor)
     store.save_json("report.json", built)
     paths = report.write(built, args.out, args.top)
-    log("Wrote " + ", ".join(str(p) for p in paths + [store.root / "report.json"]))
+    method = "jev" if store.load_json("clusters-jev.json") is not None else "embeddings"
+    clusters = store.load_json(f"clusters-{method}.json", [])
+    pairs = len(store.load_json(f"similarity-{args.jev_model}.json", {}))
+    html_path = Path(args.out) / "playlists.html"
+    by_id = {v["id"]: v for v in store.videos()}
+    html_path.write_text(report_html.render(built, clusters, by_id, pairs, method), encoding="utf-8")
+    log("Wrote " + ", ".join(str(p) for p in paths + [html_path, store.root / "report.json"]))
 
 
 def cmd_run(args, store: Store) -> None:

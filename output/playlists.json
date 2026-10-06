@@ -1,0 +1,135 @@
+[
+  {
+    "slug": "start-here",
+    "name": "Start Here: New to Abolition",
+    "description": "Clear, short, persuasive videos that explain what abolitionism is and why abortion is murder, accessible to someone with no background. A good first video to send a new abolitionist.",
+    "source": "seed",
+    "top": 15
+  },
+  {
+    "slug": "moral-relativism",
+    "name": "Who Are You to Judge? Answering Moral Relativism",
+    "description": "Conversations where someone claims morality is subjective, arbitrary, cultural, or personal, and the abolitionist shows that moral claims need an objective standard and a moral lawgiver.",
+    "source": "seed"
+  },
+  {
+    "slug": "bodily-autonomy",
+    "name": "My Body, My Choice: Bodily Autonomy",
+    "description": "Answers to bodily autonomy, 'my body my choice', violinist-style arguments, and the claim that a woman's rights outweigh the child's right to life.",
+    "source": "seed"
+  },
+  {
+    "slug": "personhood",
+    "name": "When Does Life Begin? Personhood and Science",
+    "description": "Arguments that the preborn child is a living human being and a person from conception: 'clump of cells', viability, consciousness, heartbeat, size, level of development, environment, dependency (SLED).",
+    "source": "seed"
+  },
+  {
+    "slug": "hard-cases",
+    "name": "The Hard Cases: Rape, Incest, and the Life of the Mother",
+    "description": "Responses to abortion in cases of rape, incest, fetal abnormality, or threats to the mother's life, and how abolitionists answer these with compassion and consistency.",
+    "source": "seed"
+  },
+  {
+    "slug": "quality-of-life",
+    "name": "Unwanted, Poor, or Unready: Quality-of-Life Objections",
+    "description": "Answers to 'the child would be poor, unwanted, abused, or in foster care', 'I'm not ready', overpopulation, and other circumstance-based justifications for abortion.",
+    "source": "seed"
+  },
+  {
+    "slug": "abolition-vs-prolife",
+    "name": "Abolition vs. Pro-Life: Why Not Incrementalism?",
+    "description": "Explains how abolitionism differs from the mainstream pro-life movement: immediatism versus incremental regulation, heartbeat bills, exceptions, and 'protecting women' framing that treats mothers only as victims.",
+    "source": "seed"
+  },
+  {
+    "slug": "equal-protection",
+    "name": "Equal Protection and Criminalizing Abortion",
+    "description": "The case for equal protection under the law for preborn children, criminalizing abortion including self-managed abortion pills, and answering 'you want to jail women?'.",
+    "source": "seed"
+  },
+  {
+    "slug": "legislation",
+    "name": "Bills of Abolition and State Legislatures",
+    "description": "Updates on abolition bills, legislative hearings, state legislators, votes, and calls to action for states to abolish abortion and defy Roe-era federal precedent.",
+    "source": "seed"
+  },
+  {
+    "slug": "church",
+    "name": "The Church and Abortion: Repentance and the Gospel",
+    "description": "Calls to the church to repent of complacency, preaching on abortion from Scripture, the gospel's answer to abortion, and challenges to pastors and 'Christian' pro-choice positions.",
+    "source": "seed"
+  },
+  {
+    "slug": "pro-choice-christians",
+    "name": "Answering Pro-Choice Christians and Religious Objections",
+    "description": "Conversations with people who claim Christianity or the Bible permits abortion, use 'don't push your religion on me', or argue from separation of church and state.",
+    "source": "seed"
+  },
+  {
+    "slug": "history-of-abolition",
+    "name": "Lessons from History: Slavery, Wilberforce, and Injustice",
+    "description": "Comparisons between abortion and historical injustices such as slavery and the Holocaust, and lessons from earlier abolitionists like Wilberforce.",
+    "source": "seed"
+  },
+  {
+    "slug": "street-ministry",
+    "name": "How to Have These Conversations: Street Ministry in Action",
+    "description": "Videos whose main lesson is the method of conversation rather than one particular argument: asking good questions, staying calm, de-escalating, handling a crowd or a heckler, and steering back to the gospel. Ordinary conversations that mostly argue a single point do not belong here.",
+    "source": "seed"
+  },
+  {
+    "slug": "know-your-rights-free-speech-police-permits-and-",
+    "name": "Know Your Rights: Free Speech, Police, Permits, and Filming",
+    "description": "Videos that show abolitionists doing public outreach and dealing with officials, police, security, business owners, rival groups, and offended or camera-wary passersby. They cover public-property rights, permits, graphic signs, being filmed, and when to stay or move.",
+    "source": "cluster",
+    "from_clusters": [
+      5,
+      12,
+      3
+    ],
+    "why_distinct": "No existing playlist covers the legal and logistical side of public witness. 'How to Have These Conversations' teaches persuasion with strangers, not rights, permits, police encounters, or filming objections."
+  },
+  {
+    "slug": "what-about-answering-deflections-and-staying-on-",
+    "name": "\"What About...?\" Answering Deflections and Staying on Topic",
+    "description": "Street conversations where someone changes the subject to born children's needs, foster care, adoption, war, other political causes, jokes, or refusals to engage. The abolitionist names the deflection and returns to the preborn child's right to life.",
+    "source": "cluster",
+    "from_clusters": [
+      2,
+      16
+    ],
+    "why_distinct": "This is a specific skill: spotting and redirecting a deflection. Existing playlists answer particular arguments such as poverty, bodily autonomy, or personhood, but none teach how to handle off-topic objections."
+  },
+  {
+    "slug": "why-every-human-has-value-image-of-god-and-objec",
+    "name": "Why Every Human Has Value: Image of God and Objective Worth",
+    "description": "Conversations answering claims that human worth depends on cognitive ability, sentience, usefulness, or species equivalence. They also cover worldview challenges such as science as moral authority, evolution, and God as the standard for human rights.",
+    "source": "cluster",
+    "from_clusters": [
+      6,
+      14
+    ],
+    "why_distinct": "The existing personhood playlist focuses on the biology of the preborn child, and the relativism playlist on the existence of objective morality. This playlist covers the grounding of human dignity and answers worth-based arguments for who counts as a person."
+  },
+  {
+    "slug": "capital-punishment-and-the-role-of-civil-governm",
+    "name": "Capital Punishment and the Role of Civil Government",
+    "description": "Videos applying biblical justice to explain why government must punish evil. They cover the difference between murder and just execution, restitution and accountability, and why the innocent preborn must be protected.",
+    "source": "cluster",
+    "from_clusters": [
+      4
+    ],
+    "why_distinct": "The equal protection playlist covers criminalizing abortion, but nothing addresses the death penalty, the purpose of the sword, or the broader biblical theory of civil justice that newer abolitionists get asked about."
+  },
+  {
+    "slug": "men-can-t-talk-about-abortion-answering-gender-b",
+    "name": "\"Men Can't Talk About Abortion\": Answering Gender-Based Objections",
+    "description": "Conversations answering the claim that men, or anyone who cannot get pregnant, have no right to speak on abortion. They show that defending human life is not gender-specific and draw on historical abolitionist parallels.",
+    "source": "cluster",
+    "from_clusters": [
+      10
+    ],
+    "why_distinct": "This is a specific, commonly heard objection about who may speak, not about the child or the mother's rights, and no existing playlist addresses it."
+  }
+]

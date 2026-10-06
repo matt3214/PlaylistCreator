@@ -27,14 +27,14 @@ def test_kmeans_recovers_planted_clusters():
     assert len(set(labels)) == 3
 
 
-def test_spectral_recovers_blocks_and_picks_k():
+def test_spectral_recovers_blocks():
     rng = np.random.default_rng(2)
     n, groups = 30, 3
     truth = np.repeat(np.arange(groups), n // groups)
     s = np.where(truth[:, None] == truth[None, :], 0.85, 0.1) + rng.normal(0, 0.03, (n, n))
     s = np.clip((s + s.T) / 2, 0, 1)
     ids = [f"v{i}" for i in range(n)]
-    found = cluster.spectral(ids, s)
+    found = cluster.spectral(ids, s, target_size=10)
     assert sorted(c["size"] for c in found) == [10, 10, 10]
     for c in found:
         assert len({truth[ids.index(i)] for i in c["video_ids"]}) == 1
@@ -105,6 +105,18 @@ def test_report_thresholds_and_ordering():
     assert [r["id"] for r in p["review"]] == ["v002"]
     assert {r["id"] for r in built["unplaced"]} == {"v002", "v003"}
     assert "| X |" in report.to_markdown(built) or "[X]" in report.to_markdown(built)
+
+
+def test_ranked_playlist_keeps_top_n():
+    playlists = [{"slug": "start", "name": "Start", "description": "s", "top": 2}]
+    videos = []
+    for i, (fit, newcomer) in enumerate([(0.6, 3.0), (0.65, 0.5), (0.5, 2.5), (0.3, 3.0), (0.45, 1.0)]):
+        v = video(i)
+        v["jev"] = {"fit": {"start": fit}, "newcomer": newcomer, "primary": "start"}
+        videos.append(v)
+    p = report.build(videos, playlists, threshold=0.7, review_floor=0.4)["playlists"][0]
+    assert [r["id"] for r in p["videos"]] == ["v000", "v002"]
+    assert [r["id"] for r in p["review"]] == ["v001", "v004"]
 
 
 def test_store_roundtrip(tmp_path):

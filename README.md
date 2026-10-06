@@ -26,9 +26,13 @@ list ─► transcribe ─► summarize ─► discover ─► score ─► repo
 
 `discover --cluster-with jev` (the default) asks Jev about **every pair** of summarized videos: *"Do these two videos address the same topic, objection, or talking point, so that they would belong in the same teaching playlist?"* Jev's yes-probability becomes the pair's similarity.
 
-Each request sends one video as the state and batches about 100 of the other videos as separate questions, so 200 videos (19,900 pairs) take about 200 requests. The similarity matrix then goes through spectral clustering: an eigenvector embedding plus k-means, with k chosen by the eigengap. Pair scores are cached in `data/similarity-jev-latest.json`, so adding videos only asks about the new pairs.
+Each request sends one video as the state and batches about 100 of the other videos as separate questions, so 200 videos (19,900 pairs) take about 200 requests. The similarity matrix then goes through spectral clustering: an eigenvector embedding plus k-means, with k set so clusters average about 12 videos (between 5 and 40; override with `--k`). Pair scores are cached in `data/similarity-jev-latest.json`, so adding videos only asks about the new pairs.
 
 `--cluster-with embeddings` is the cheaper alternative: it embeds the summaries (`voyageai/voyage-4-lite`), runs k-means and picks k by silhouette score.
+
+## Sample results
+
+`output/` holds a run on the newest 40 long videos and 160 Shorts (October 2026): `playlists.md`, `playlists.html` (open it in a browser), `assignments.csv`, the final `playlists.json`, and the explained Jev clusters in `clusters-jev.json`.
 
 ## Setup
 
@@ -69,6 +73,7 @@ The starter playlists are in `playlist_creator/seed_playlists.json`. After `disc
 - A video is **included** in a playlist when Jev's fit probability is at least `--threshold` (0.7). A video can appear in several playlists.
 - Fits between `--review-floor` (0.4) and the threshold are listed as **borderline** for a human to decide.
 - Within a playlist, videos that are both on topic and good for newcomers come first.
+- A playlist with `"top": N` in its JSON (Start Here has `"top": 15`) is a ranking rather than a topic. It keeps its N best videos instead of applying the threshold.
 
 ### YouTube blocking
 

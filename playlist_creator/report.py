@@ -12,6 +12,9 @@ def build(videos: list[dict], playlists: list[dict], threshold: float = 0.7, rev
     A video joins every playlist whose fit >= threshold (videos can live in several playlists).
     Fits between review_floor and threshold go to a human review list instead.
     Within a playlist, videos that are both on-topic and newcomer-friendly come first.
+
+    A playlist with "top": N is a ranking rather than a topic (e.g. "Start Here"): it takes its N
+    best-ranked videos with fit >= review_floor, and the next N go to review.
     """
     scored = [v for v in videos if v.get("jev")]
     result = []
@@ -28,9 +31,12 @@ def build(videos: list[dict], playlists: list[dict], threshold: float = 0.7, rev
                 review.append(row)
         members.sort(key=lambda r: -r["rank"])
         review.sort(key=lambda r: -r["fit"])
+        if p.get("top"):
+            ranked = sorted(members + review, key=lambda r: -r["rank"])
+            members, review = ranked[:p["top"]], ranked[p["top"]:2 * p["top"]]
         result.append({**p, "videos": members, "review": review})
-    unplaced = [_row(v, None) for v in scored
-                if not any(f >= threshold for f in v["jev"]["fit"].values())]
+    placed = {r["id"] for p in result for r in p["videos"]}
+    unplaced = [_row(v, None) for v in scored if v["id"] not in placed]
     return {"threshold": threshold, "review_floor": review_floor, "scored_videos": len(scored),
             "playlists": result, "unplaced": unplaced}
 
@@ -76,7 +82,8 @@ def to_markdown(report: dict, top: int = 25) -> str:
         "# Suggested playlists",
         "",
         f"{report['scored_videos']} videos scored by Jev. A video is included when Jev's fit probability is "
-        f"at least {report['threshold']:.0%}; {report['review_floor']:.0%} to {report['threshold']:.0%} is listed for review. "
+        f"at least {report['threshold']:.0%}; {report['review_floor']:.0%} to {report['threshold']:.0%} is listed for review "
+        "(ranked playlists such as Start Here keep their best N instead). "
         "Newcomer is Jev's 0-3 rating of how well the video serves someone new to abolition.",
         "",
         "| Playlist | Included | Review | Source |",

@@ -79,25 +79,25 @@ def cluster(ids: list[str], vectors: np.ndarray, k: int | None = None, seed: int
 
 
 def spectral(ids: list[str], similarity: np.ndarray, k: int | None = None, seed: int = 0,
-             k_min: int = 2, k_max: int = 30) -> list[dict]:
+             k_min: int = 2, k_max: int = 40, target_size: int = 12) -> list[dict]:
     """Spectral clustering on a precomputed similarity matrix (e.g. Jev pair probabilities).
 
     Embeds each video with the leading eigenvectors of the normalized affinity matrix, then runs
     k-means in that space. Cohesion is the mean similarity of each member to the rest of its cluster.
+
+    Without k, aim for playlist-sized clusters (~target_size videos). Topics in street conversations
+    overlap heavily, so the spectrum rarely has a clean eigengap to read k from.
     """
     w = np.clip((similarity + similarity.T) / 2, 0, 1)
     np.fill_diagonal(w, 0)
     d = w.sum(axis=1)
     inv_sqrt = 1 / np.sqrt(np.clip(d, 1e-12, None))
     affinity = inv_sqrt[:, None] * w * inv_sqrt[None, :]
-    eigvals, eigvecs = np.linalg.eigh(affinity)  # ascending
-    eigvals, eigvecs = eigvals[::-1], eigvecs[:, ::-1]
+    _, eigvecs = np.linalg.eigh(affinity)  # ascending
+    eigvecs = eigvecs[:, ::-1]
     if k is None:
-        # Eigengap heuristic: k where the gap between consecutive eigenvalues is largest.
-        hi = min(k_max, len(ids) - 1)
-        lo = min(k_min, hi)
-        gaps = eigvals[lo - 1:hi] - eigvals[lo:hi + 1]
-        k = lo + int(np.argmax(gaps)) if len(gaps) else lo
+        k = int(np.clip(round(len(ids) / target_size), k_min, k_max))
+    k = max(1, min(k, len(ids)))
     x = normalize(eigvecs[:, :k])
     labels, _ = kmeans(x, k, seed)
     clusters = []

@@ -2,7 +2,8 @@
   {
     "slug": "start-here",
     "name": "Start Here: New to Abolition",
-    "description": "Clear, short, persuasive videos that explain what abolitionism is and why abortion is murder, accessible to someone with no background. A good first video to send a new abolitionist."
+    "description": "Clear, short, persuasive videos that explain what abolitionism is and why abortion is murder, accessible to someone with no background. A good first video to send a new abolitionist.",
+    "top": 15
   },
   {
     "slug": "moral-relativism",
@@ -62,6 +63,6 @@
   {
     "slug": "street-ministry",
     "name": "How to Have These Conversations: Street Ministry in Action",
-    "description": "Videos that model how to engage strangers, students, and hecklers calmly and persuasively, useful as training for new abolitionists doing street or campus outreach."
+    "description": "Videos whose main lesson is the method of conversation rather than one particular argument: asking good questions, staying calm, de-escalating, handling a crowd or a heckler, and steering back to the gospel. Ordinary conversations that mostly argue a single point do not belong here."
   }
 ]
