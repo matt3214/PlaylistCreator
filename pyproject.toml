@@ -1,0 +1,27 @@
+[project]
+name = "playlist-creator"
+version = "0.1.0"
+description = "Suggest YouTube playlists for Abolitionists Rising videos using OpenRouter LLMs and TypeSafe's Jev."
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "requests>=2.31",
+    "typesafe-sdk>=0.7",
+    "yt-dlp>=2025.1.1",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+playlist-creator = "playlist_creator.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["playlist_creator"]
+
+[tool.setuptools.package-data]
+playlist_creator = ["seed_playlists.json"]

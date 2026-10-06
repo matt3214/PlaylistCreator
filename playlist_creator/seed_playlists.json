@@ -1,0 +1,67 @@
+[
+  {
+    "slug": "start-here",
+    "name": "Start Here: New to Abolition",
+    "description": "Clear, short, persuasive videos that explain what abolitionism is and why abortion is murder, accessible to someone with no background. A good first video to send a new abolitionist."
+  },
+  {
+    "slug": "moral-relativism",
+    "name": "Who Are You to Judge? Answering Moral Relativism",
+    "description": "Conversations where someone claims morality is subjective, arbitrary, cultural, or personal, and the abolitionist shows that moral claims need an objective standard and a moral lawgiver."
+  },
+  {
+    "slug": "bodily-autonomy",
+    "name": "My Body, My Choice: Bodily Autonomy",
+    "description": "Answers to bodily autonomy, 'my body my choice', violinist-style arguments, and the claim that a woman's rights outweigh the child's right to life."
+  },
+  {
+    "slug": "personhood",
+    "name": "When Does Life Begin? Personhood and Science",
+    "description": "Arguments that the preborn child is a living human being and a person from conception: 'clump of cells', viability, consciousness, heartbeat, size, level of development, environment, dependency (SLED)."
+  },
+  {
+    "slug": "hard-cases",
+    "name": "The Hard Cases: Rape, Incest, and the Life of the Mother",
+    "description": "Responses to abortion in cases of rape, incest, fetal abnormality, or threats to the mother's life, and how abolitionists answer these with compassion and consistency."
+  },
+  {
+    "slug": "quality-of-life",
+    "name": "Unwanted, Poor, or Unready: Quality-of-Life Objections",
+    "description": "Answers to 'the child would be poor, unwanted, abused, or in foster care', 'I'm not ready', overpopulation, and other circumstance-based justifications for abortion."
+  },
+  {
+    "slug": "abolition-vs-prolife",
+    "name": "Abolition vs. Pro-Life: Why Not Incrementalism?",
+    "description": "Explains how abolitionism differs from the mainstream pro-life movement: immediatism versus incremental regulation, heartbeat bills, exceptions, and 'protecting women' framing that treats mothers only as victims."
+  },
+  {
+    "slug": "equal-protection",
+    "name": "Equal Protection and Criminalizing Abortion",
+    "description": "The case for equal protection under the law for preborn children, criminalizing abortion including self-managed abortion pills, and answering 'you want to jail women?'."
+  },
+  {
+    "slug": "legislation",
+    "name": "Bills of Abolition and State Legislatures",
+    "description": "Updates on abolition bills, legislative hearings, state legislators, votes, and calls to action for states to abolish abortion and defy Roe-era federal precedent."
+  },
+  {
+    "slug": "church",
+    "name": "The Church and Abortion: Repentance and the Gospel",
+    "description": "Calls to the church to repent of complacency, preaching on abortion from Scripture, the gospel's answer to abortion, and challenges to pastors and 'Christian' pro-choice positions."
+  },
+  {
+    "slug": "pro-choice-christians",
+    "name": "Answering Pro-Choice Christians and Religious Objections",
+    "description": "Conversations with people who claim Christianity or the Bible permits abortion, use 'don't push your religion on me', or argue from separation of church and state."
+  },
+  {
+    "slug": "history-of-abolition",
+    "name": "Lessons from History: Slavery, Wilberforce, and Injustice",
+    "description": "Comparisons between abortion and historical injustices such as slavery and the Holocaust, and lessons from earlier abolitionists like Wilberforce."
+  },
+  {
+    "slug": "street-ministry",
+    "name": "How to Have These Conversations: Street Ministry in Action",
+    "description": "Videos that model how to engage strangers, students, and hecklers calmly and persuasively, useful as training for new abolitionists doing street or campus outreach."
+  }
+]
