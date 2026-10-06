@@ -21,7 +21,7 @@ class OpenRouterError(RuntimeError):
 
 
 class OpenRouter:
-    def __init__(self, api_key: str | None = None, timeout: float = 180, retries: int = 4):
+    def __init__(self, api_key: str | None = None, timeout: float = 600, retries: int = 5):
         self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
         if not self.api_key:
             raise OpenRouterError("Set OPENROUTER_API_KEY.")
@@ -41,7 +41,9 @@ class OpenRouter:
                 if attempt == self.retries:
                     raise OpenRouterError(str(exc)) from exc
             else:
-                if resp.status_code not in RETRY_STATUS:
+                # 402 "given your current in-flight requests" clears once running requests settle.
+                in_flight = resp.status_code == 402 and "in-flight" in resp.text
+                if resp.status_code not in RETRY_STATUS and not in_flight:
                     if resp.status_code >= 400:
                         raise OpenRouterError(f"{resp.status_code}: {resp.text[:500]}")
                     data = resp.json()
