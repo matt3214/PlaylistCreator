@@ -12,6 +12,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
+youtube = ["google-auth-oauthlib>=1.2"]
 
 [project.scripts]
 playlist-creator = "playlist_creator.cli:main"

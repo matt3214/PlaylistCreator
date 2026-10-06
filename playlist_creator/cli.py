@@ -5,6 +5,7 @@
 """
 
 import argparse
+import json
 import sys
 import threading
 from pathlib import Path
@@ -243,10 +244,48 @@ def cmd_report(args, store: Store) -> None:
     method = "jev" if store.load_json("clusters-jev.json") is not None else "embeddings"
     clusters = store.load_json(f"clusters-{method}.json", [])
     pairs = len(store.load_json(f"similarity-{args.jev_model}.json", {}))
+    # Compact ranking (ids and scores only) next to the other outputs, so publish works from a fresh clone.
+    compact = {"threshold": built["threshold"], "playlists": [
+        {k: p.get(k) for k in ("slug", "name", "description", "source", "top")}
+        | {"videos": [{"id": r["id"], "title": r["title"], "fit": round(r["fit"], 3)} for r in p["videos"]]}
+        for p in built["playlists"]]}
+    (Path(args.out) / "report.json").write_text(json.dumps(compact, ensure_ascii=False, indent=1), encoding="utf-8")
     html_path = Path(args.out) / "playlists.html"
     by_id = {v["id"]: v for v in store.videos()}
     html_path.write_text(report_html.render(built, clusters, by_id, pairs, method), encoding="utf-8")
     log("Wrote " + ", ".join(str(p) for p in paths + [html_path, store.root / "report.json"]))
+
+
+def cmd_publish(args, store: Store) -> None:
+    """Create the playlists on YouTube (your account) with their top-ranked videos."""
+    from playlist_creator import publish
+
+    built = store.load_json("report.json")
+    if not built and Path("output/report.json").exists():
+        built = json.loads(Path("output/report.json").read_text(encoding="utf-8"))
+    if not built:
+        sys.exit("Run `report` first; publish reads data/report.json (or output/report.json).")
+    slugs = args.playlists.split(",") if args.playlists else None
+    chosen = publish.plan(built, slugs, args.top)
+    state = store.load_json("published.json", {})
+    pending = sum(len(set(p["video_ids"]) - set(state.get(p["slug"], {}).get("added", []))
+                      - set(state.get(p["slug"], {}).get("skipped", []))) for p in chosen)
+    new = sum(1 for p in chosen if not state.get(p["slug"], {}).get("playlist_id"))
+    units = 50 * (pending + new)
+    log(f"{len(chosen)} playlists ({new} to create), {pending} videos to add: about {units:,} quota units "
+        f"(~{max(1, -(-units // 10_000))} day(s) at the default 10,000/day).")
+    if args.dry_run:
+        for p in chosen:
+            log(f"  {args.prefix}{p['name']} ({len(p['video_ids'])} videos)")
+        return
+    youtube = publish.YouTube(publish.sign_in(args.client_secrets, store.root / "youtube-token.json"))
+    try:
+        publish.publish(youtube, chosen, state, args.privacy, args.prefix,
+                        lambda st: store.save_json("published.json", st), log)
+    except publish.QuotaExceeded as exc:
+        log(str(exc))
+        return
+    log(f"Done. Playlists are {args.privacy}; change visibility in YouTube Studio when you're happy with them.")
 
 
 def cmd_run(args, store: Store) -> None:
@@ -286,6 +325,7 @@ def main(argv=None) -> None:
         "discover": (cmd_discover, "embed + cluster summaries to propose new playlists"),
         "score": (cmd_score, "Jev fit probabilities for every video x playlist"),
         "report": (cmd_report, "write playlists.md / assignments.csv"),
+        "publish": (cmd_publish, "create the playlists on your YouTube account"),
         "run": (cmd_run, "all stages in order"),
     }
     for name, (fn, help_text) in stages.items():
@@ -310,6 +350,15 @@ def main(argv=None) -> None:
             p.add_argument("--review-floor", type=float, default=0.4)
             p.add_argument("--top", type=int, default=25)
             p.add_argument("--out", default="output")
+
+    pub = sub.choices["publish"]
+    pub.add_argument("--client-secrets", default="client_secret.json",
+                     help="OAuth client file (Desktop app) from Google Cloud Console")
+    pub.add_argument("--playlists", help="comma-separated slugs to publish (default: all)")
+    pub.add_argument("--top", type=int, default=25, help="videos per playlist, best-ranked first")
+    pub.add_argument("--privacy", choices=["private", "unlisted", "public"], default="private")
+    pub.add_argument("--prefix", default="", help="text to put before every playlist title")
+    pub.add_argument("--dry-run", action="store_true", help="show what would be created and the quota cost")
 
     args = parser.parse_args(argv)
     args.fn(args, Store(args.data))

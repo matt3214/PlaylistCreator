@@ -84,6 +84,31 @@ The starter playlists are in `playlist_creator/seed_playlists.json`. After `disc
 
 From cloud or server IPs, YouTube often refuses per-video requests. Listing the channel still works, and transcription falls back to Gemini automatically. On your own machine, captions usually work and are free. If YouTube asks you to sign in, pass `--cookies-from-browser chrome`.
 
+## Putting the playlists on YouTube
+
+`publish` creates real playlists on your YouTube account, each holding its top-ranked videos (25 by default). It needs a one-time Google setup and must run on your own computer, because sign-in opens a browser.
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) and create a project. Any name works.
+2. Under **APIs & Services → Library**, enable **YouTube Data API v3**.
+3. Set up the **OAuth consent screen**. Choose **External**, then add your own Google account as a **test user**.
+4. Under **Credentials → Create credentials → OAuth client ID**, choose **Desktop app**. Download the JSON file and save it as `client_secret.json` in this folder. It is git-ignored.
+5. Run:
+
+```
+pip install -e '.[youtube]'
+playlist-creator publish --dry-run                       # what would be created, and the quota cost
+playlist-creator publish --playlists moral-relativism    # try one playlist first
+playlist-creator publish                                 # all of them
+```
+
+The first run opens a browser so you can pick the YouTube account or channel. The token is saved to `data/youtube-token.json`.
+
+- Playlists are created **private**. Check them, then switch them to public in YouTube Studio, or pass `--privacy public` or `--privacy unlisted`.
+- `--top 15` changes the number of videos per playlist. `--prefix "AR: "` puts text before every title.
+- **Quota.** Each new playlist and each added video costs 50 units, out of 10,000 per day. That is about 200 videos a day, and all 20 playlists × 25 videos takes about 3 days. When the quota runs out, `publish` stops and records its progress in `data/published.json`. Run it again the next day and it continues without adding duplicates.
+- Deleted or private videos are skipped and logged.
+- To put the playlists on the Abolitionists Rising channel itself, the sign-in has to be done by someone who manages that channel.
+
 ## Cost (rough)
 
 - Gemini watching video: about $0.004 per Short and $0.04–0.06 per 20-minute video. With captions, transcription is free.
