@@ -177,8 +177,6 @@ def cmd_discover(args, store: Store) -> None:
 
 
 def jev_similarity(args, store: Store, videos: list[dict]) -> np.ndarray:
-    from typesafe_sdk import TypeSafeClient
-
     cache_name = f"similarity-{args.jev_model}.json"
     cache = store.load_json(cache_name, {})
     jobs = jev.similarity_jobs(videos, cache)
@@ -192,7 +190,7 @@ def jev_similarity(args, store: Store, videos: list[dict]) -> np.ndarray:
                 snapshot = dict(cache)
             store.save_json(cache_name, snapshot, indent=None)
 
-    with TypeSafeClient(timeout=120) as client:
+    with jev_client() as client:
         def work(job) -> None:
             result = jev.score_pairs(client, job[0], job[1], args.jev_model)
             with lock:
@@ -215,15 +213,22 @@ def embeddings(args, store: Store, client: OpenRouter, videos: list[dict]) -> np
     return np.stack([cache[v["id"]] for v in videos])
 
 
-def cmd_score(args, store: Store) -> None:
-    from typesafe_sdk import TypeSafeClient
+def jev_client():
+    """Jev client that waits out rate limits (429) instead of failing the request."""
+    from typesafe_sdk import RetryPolicy, TypeSafeClient
 
+    retry = RetryPolicy(max_retries=6, backoff_initial=1.0, backoff_max=30.0, timeout=None,
+                        http_statuses={408, 429, 500, 502, 503, 504})
+    return TypeSafeClient(timeout=120, retry=retry)
+
+
+def cmd_score(args, store: Store) -> None:
     plist = store.load_json("playlists.json") or playlists.load_seed_playlists(args.seeds)
     current = jev.playlists_hash(plist)
     todo = [v for v in select(store, args)
             if v.get("summary") and (args.force or (v.get("jev") or {}).get("playlists_hash") != current)]
     log(f"Scoring {len(todo)} videos against {len(plist)} playlists with Jev ({args.jev_model}).")
-    with TypeSafeClient(timeout=60) as client:
+    with jev_client() as client:
         def work(video: dict) -> None:
             store.update_video(video["id"], jev=jev.score_video(client, video, plist, args.jev_model))
 
