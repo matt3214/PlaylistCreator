@@ -30,9 +30,14 @@ Each request sends one video as the state and batches about 100 of the other vid
 
 `--cluster-with embeddings` is the cheaper alternative: it embeds the summaries (`voyageai/voyage-4-lite`), runs k-means and picks k by silhouette score.
 
-## Sample results
+## Results
 
-`output/` holds a run on the newest 40 long videos and 160 Shorts (October 2026): `playlists.md`, `playlists.html` (open it in a browser), `assignments.csv`, the final `playlists.json`, and the explained Jev clusters in `clusters-jev.json`.
+`output/` holds a run on the full channel (October 2026): 2,064 of 2,130 uploads summarized and scored. The 66 missing ones are long videos and livestreams that ran out of OpenRouter credit or exceed Gemini's roughly 3-hour limit. Jev made 2.13 million pair judgements for the clustering.
+
+- `playlists.md` and `playlists.html` (open it in a browser): every playlist, ranked
+- `assignments.csv`: one row per video and playlist (include or review)
+- `playlists.json`: the final playlist list
+- `clusters-jev.json`: the 40 Jev clusters with their LLM explanations
 
 ## Setup
 

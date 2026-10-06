@@ -3,8 +3,8 @@
     "slug": "start-here",
     "name": "Start Here: New to Abolition",
     "description": "Clear, short, persuasive videos that explain what abolitionism is and why abortion is murder, accessible to someone with no background. A good first video to send a new abolitionist.",
-    "source": "seed",
-    "top": 15
+    "top": 25,
+    "source": "seed"
   },
   {
     "slug": "moral-relativism",
@@ -79,16 +79,61 @@
     "source": "seed"
   },
   {
-    "slug": "know-your-rights-free-speech-police-permits-and-",
-    "name": "Know Your Rights: Free Speech, Police, Permits, and Filming",
-    "description": "Videos that show abolitionists doing public outreach and dealing with officials, police, security, business owners, rival groups, and offended or camera-wary passersby. They cover public-property rights, permits, graphic signs, being filmed, and when to stay or move.",
+    "slug": "defending-the-use-of-graphic-imagery",
+    "name": "Defending the Use of Graphic Imagery",
+    "description": "Practical training and street conversations defending the use of graphic abortion imagery as a necessary tool to expose the reality of murder and challenge public apathy.",
     "source": "cluster",
     "from_clusters": [
-      5,
-      12,
-      3
+      11
     ],
-    "why_distinct": "No existing playlist covers the legal and logistical side of public witness. 'How to Have These Conversations' teaches persuasion with strangers, not rights, permits, police encounters, or filming objections."
+    "why_distinct": "No existing playlist addresses the specific tactical and ethical objections raised against the use of graphic imagery in public outreach."
+  },
+  {
+    "slug": "navigating-hostility-and-maintaining-composure",
+    "name": "Navigating Hostility and Maintaining Composure",
+    "description": "Training on how to remain calm, Christ-centered, and focused on the gospel when facing verbal abuse, profanity, ad hominem attacks, and tone policing in the public square.",
+    "source": "cluster",
+    "from_clusters": [
+      16,
+      18,
+      37,
+      23,
+      17
+    ],
+    "why_distinct": "Merges multiple clusters regarding hostility and deflection; existing playlists focus on arguments, not the specific skill of emotional and rhetorical composure under fire."
+  },
+  {
+    "slug": "legal-rights-filming-and-public-witness",
+    "name": "Legal Rights: Filming and Public Witness",
+    "description": "Guidance on asserting First Amendment rights, filming in public spaces, and handling confrontations with security, campus officials, or business owners.",
+    "source": "cluster",
+    "from_clusters": [
+      12,
+      21,
+      22,
+      31
+    ],
+    "why_distinct": "Existing playlists focus on moral arguments; this covers the distinct practical and legal skill set required for street ministry logistics."
+  },
+  {
+    "slug": "responding-to-no-uterus-no-opinion",
+    "name": "Responding to 'No Uterus, No Opinion'",
+    "description": "Training on how to dismantle identity-based dismissal by exposing logical fallacies and redirecting the conversation to the objective humanity of the preborn.",
+    "source": "cluster",
+    "from_clusters": [
+      13
+    ],
+    "why_distinct": "This is a specific, common rhetorical objection not covered by the existing 'Bodily Autonomy' or 'Moral Relativism' playlists."
+  },
+  {
+    "slug": "apologetics-challenging-naturalism-and-evolution",
+    "name": "Apologetics: Challenging Naturalism and Evolutionary Theory",
+    "description": "Equipping abolitionists to engage with secular worldviews by challenging the scientific and philosophical foundations of naturalism and evolutionary theory.",
+    "source": "cluster",
+    "from_clusters": [
+      36
+    ],
+    "why_distinct": "This addresses the foundational worldview level of the debate, which is distinct from the specific moral or legal arguments covered in other playlists."
   },
   {
     "slug": "what-about-answering-deflections-and-staying-on-",
@@ -99,7 +144,7 @@
       2,
       16
     ],
-    "why_distinct": "This is a specific skill: spotting and redirecting a deflection. Existing playlists answer particular arguments such as poverty, bodily autonomy, or personhood, but none teach how to handle off-topic objections."
+    "why_distinct": "This is a specific skill: spotting and redirecting a deflection. Existing playlists answer particular arguments such as poverty, bodily autonomy, or personhood, but none teach how to handle off-topic objections. (Found in the 200-video sample run; kept because full-channel curation folded it into broader playlists.)"
   },
   {
     "slug": "why-every-human-has-value-image-of-god-and-objec",
@@ -110,26 +155,6 @@
       6,
       14
     ],
-    "why_distinct": "The existing personhood playlist focuses on the biology of the preborn child, and the relativism playlist on the existence of objective morality. This playlist covers the grounding of human dignity and answers worth-based arguments for who counts as a person."
-  },
-  {
-    "slug": "capital-punishment-and-the-role-of-civil-governm",
-    "name": "Capital Punishment and the Role of Civil Government",
-    "description": "Videos applying biblical justice to explain why government must punish evil. They cover the difference between murder and just execution, restitution and accountability, and why the innocent preborn must be protected.",
-    "source": "cluster",
-    "from_clusters": [
-      4
-    ],
-    "why_distinct": "The equal protection playlist covers criminalizing abortion, but nothing addresses the death penalty, the purpose of the sword, or the broader biblical theory of civil justice that newer abolitionists get asked about."
-  },
-  {
-    "slug": "men-can-t-talk-about-abortion-answering-gender-b",
-    "name": "\"Men Can't Talk About Abortion\": Answering Gender-Based Objections",
-    "description": "Conversations answering the claim that men, or anyone who cannot get pregnant, have no right to speak on abortion. They show that defending human life is not gender-specific and draw on historical abolitionist parallels.",
-    "source": "cluster",
-    "from_clusters": [
-      10
-    ],
-    "why_distinct": "This is a specific, commonly heard objection about who may speak, not about the child or the mother's rights, and no existing playlist addresses it."
+    "why_distinct": "The existing personhood playlist focuses on the biology of the preborn child, and the relativism playlist on the existence of objective morality. This playlist covers the grounding of human dignity and answers worth-based arguments for who counts as a person. (Found in the 200-video sample run; kept because full-channel curation folded it into broader playlists.)"
   }
 ]
