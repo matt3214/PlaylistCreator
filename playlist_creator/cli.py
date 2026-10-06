@@ -31,9 +31,13 @@ def log(msg: str) -> None:
     print(msg, file=sys.stderr, flush=True)
 
 
-def parallel(items, fn, workers: int, label: str) -> int:
-    """Run fn over items in threads; log failures and keep going. Returns the success count."""
+def parallel(items, fn, workers: int, label: str, on_progress=None) -> int:
+    """Run fn over items in threads; log failures and keep going. Returns the success count.
+
+    on_progress(done) is called from the main thread after every completed item.
+    """
     done = ok = 0
+    every = max(25, len(items) // 40)
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {pool.submit(fn, item): item for item in items}
         for future in as_completed(futures):
@@ -44,8 +48,10 @@ def parallel(items, fn, workers: int, label: str) -> int:
                 ok += 1
             except Exception as exc:  # noqa: BLE001 - one bad video must not stop the batch
                 log(f"  [{label}] {item.get('id')} failed: {str(exc)[:200]}")
-            if done % 25 == 0 or done == len(futures):
+            if done % every == 0 or done == len(futures):
                 log(f"  [{label}] {done}/{len(futures)}")
+            if on_progress:
+                on_progress(done)
     return ok
 
 
@@ -81,32 +87,46 @@ class CaptionBreaker:
 
 
 def cmd_transcribe(args, store: Store) -> None:
+    """Captions first (free), then Gemini watching the video.
+
+    --method captions  only captions; re-run it to retry videos YouTube refused (rate limits are per IP)
+    --method gemini    only Gemini, skipping videos longer than --max-minutes
+    --method auto      captions, falling back to Gemini; stops asking YouTube after repeated bot-checks
+    """
     todo = [v for v in select(store, args) if not v.get("transcript")]
+    if args.method == "captions":
+        todo = [v for v in todo if v.get("captions") != "none"]
+    if args.method != "captions" and args.max_minutes:
+        skipped = [v for v in todo if (v.get("duration") or 0) > args.max_minutes * 60]
+        todo = [v for v in todo if v not in skipped]
+        if skipped:
+            log(f"Skipping {len(skipped)} videos longer than {args.max_minutes} minutes (raise --max-minutes to include them).")
     client = OpenRouter() if args.method != "captions" else None
-    breaker = CaptionBreaker()
+    breaker = CaptionBreaker() if args.method == "auto" else None
 
     def work(video: dict) -> None:
-        if args.method != "gemini" and not breaker.open:
+        if args.method == "captions" or (args.method == "auto" and not breaker.open):
             try:
                 details = youtube.fetch_details(video["id"], args.cookies_from_browser)
-                breaker.record(True)
+                if breaker:
+                    breaker.record(True)
+                found = bool(details["transcript"])
                 details = {k: v for k, v in details.items() if v not in (None, "", [])}
-                video = store.update_video(video["id"], **details)
-                if video.get("transcript"):
+                video = store.update_video(video["id"], captions="found" if found else "none", **details)
+                if found or args.method == "captions":
                     return
             except Exception as exc:  # noqa: BLE001
-                breaker.record(False)
                 if args.method == "captions":
                     raise
+                breaker.record(False)
                 log(f"  captions failed for {video['id']}: {str(exc)[:120]}")
-        if args.method == "captions":
-            return
         url = video.get("url") or youtube.video_url(video["id"], video.get("kind") == "short")
         text = client.transcribe_youtube(args.video_model, url)
         store.update_video(video["id"], transcript=text, transcript_source=f"llm:{args.video_model}")
 
     log(f"Transcribing {len(todo)} videos ({args.method}).")
-    parallel(todo, work, args.workers, "transcribe")
+    ok = parallel(todo, work, args.workers, "transcribe")
+    log(f"Transcribed or checked {ok}/{len(todo)}.")
 
 
 def cmd_summarize(args, store: Store) -> None:
@@ -165,6 +185,13 @@ def jev_similarity(args, store: Store, videos: list[dict]) -> np.ndarray:
     pairs = sum(len(others) for _, others in jobs)
     log(f"Jev similarity: {pairs} new pairs in {len(jobs)} requests ({len(cache)} cached).")
     lock = threading.Lock()
+
+    def checkpoint(done: int) -> None:
+        if done % 2000 == 0:  # a crash costs at most ~2000 requests
+            with lock:
+                snapshot = dict(cache)
+            store.save_json(cache_name, snapshot, indent=None)
+
     with TypeSafeClient(timeout=120) as client:
         def work(job) -> None:
             result = jev.score_pairs(client, job[0], job[1], args.jev_model)
@@ -172,8 +199,8 @@ def jev_similarity(args, store: Store, videos: list[dict]) -> np.ndarray:
                 cache.update(result)
 
         parallel([{"id": a["id"], "job": (a, o)} for a, o in jobs], lambda item: work(item["job"]),
-                 args.workers, "pairs")
-    store.save_json(cache_name, cache)
+                 args.workers, "pairs", on_progress=checkpoint)
+    store.save_json(cache_name, cache, indent=None)
     return jev.similarity_matrix([v["id"] for v in videos], cache)
 
 
@@ -266,6 +293,7 @@ def main(argv=None) -> None:
         if name in ("transcribe", "run"):
             p.add_argument("--method", choices=["auto", "captions", "gemini"], default="auto")
             p.add_argument("--cookies-from-browser", help="e.g. chrome or firefox, if YouTube asks you to sign in")
+            p.add_argument("--max-minutes", type=float, help="don't send videos longer than this to Gemini")
         if name in ("discover", "run"):
             p.add_argument("--k", type=int, help="number of clusters (default: chosen automatically)")
             p.add_argument("--k-min", type=int, default=5, help="smallest k the automatic choice considers")

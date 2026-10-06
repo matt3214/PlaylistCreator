@@ -89,6 +89,7 @@ details.review summary { cursor: pointer; font-weight: 500; }
 details.review .row { grid-template-columns: minmax(0, 1fr) 150px; }
 @media (max-width: 560px) { details.review .row { grid-template-columns: minmax(0, 1fr); } details.review .row .meters { grid-column: 1; } }
 .empty { color: var(--muted); font-style: italic; }
+button.more { justify-self: start; font: 500 14px var(--font-body); padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
 .clusters { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
 .cluster { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
 .cluster h3 { font: 700 19px/1.25 var(--font-display); margin: 0; text-wrap: balance; }
@@ -120,6 +121,14 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
 <script id="data" type="application/json">__DATA__</script>
 <script>
 const DATA = JSON.parse(document.getElementById("data").textContent);
+// Rows arrive as [id, fit] / id references into DATA.videos; expand them once.
+const V = DATA.videos;
+const hyd = ([id, fit]) => ({ ...V[id], id, fit });
+DATA.report.playlists.forEach(p => { p.videos = p.videos.map(hyd); p.review = p.review.map(hyd); });
+DATA.report.unplaced = DATA.report.unplaced.map(id => hyd([id, null]));
+DATA.clusters.forEach(c => { c.videos = c.videos.map(id => V[id]); });
+const PAGE = 150;
+let showAll = false;
 const view = document.getElementById("view");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pct = x => Math.round(x * 100) + "%";
@@ -160,16 +169,20 @@ function renderPlaylists() {
       <span class="src ${x.source === "cluster" ? "found" : ""}">${x.source === "cluster" ? "found by clustering" : "starter playlist"}</span></button>`).join("");
   let body = `<p class="empty">No playlists.</p>`;
   if (p) {
-    const vids = p.videos.filter(match), rev = p.review.filter(match);
+    const allVids = p.videos.filter(match), rev = p.review.filter(match);
+    const vids = showAll ? allVids : allVids.slice(0, PAGE);
+    const more = allVids.length > vids.length ? `<button class="more" id="more">Show all ${allVids.length} videos</button>` : "";
     body = `<h2>${esc(p.name)}</h2><p class="desc">${esc(p.description)}</p>
       ${p.why_distinct ? `<p class="why"><strong>Why this is its own playlist:</strong> ${esc(p.why_distinct)}</p>` : ""}
       <div class="toolbar"><input id="q" type="search" placeholder="Filter by title or summary" value="${esc(filter)}" aria-label="Filter videos">
         <label><input id="shorts" type="checkbox" ${shortsOnly ? "checked" : ""}> Shorts only</label></div>
-      <div class="list">${vids.length ? vids.map(row).join("") : `<p class="empty">No videos cleared the ${pct(DATA.report.threshold)} threshold${filter || shortsOnly ? " with this filter" : ""}.</p>`}</div>
+      <div class="list">${vids.length ? vids.map(row).join("") : `<p class="empty">No videos cleared the ${pct(DATA.report.threshold)} threshold${filter || shortsOnly ? " with this filter" : ""}.</p>`}</div>${more}
       ${rev.length ? `<details class="review"><summary>${rev.length} borderline (${pct(DATA.report.review_floor)}–${pct(DATA.report.threshold)}) to review</summary><div class="list">${rev.map(r => row(r, null)).join("")}</div></details>` : ""}`;
   }
   view.innerHTML = `<div class="layout"><div class="rail" role="list">${rail}</div><section class="panel">${body}</section></div>`;
-  view.querySelectorAll(".rail button").forEach(b => b.onclick = () => { current = b.dataset.slug; try { localStorage.setItem("pl-current", current); } catch (e) {} renderPlaylists(); });
+  const m = view.querySelector("#more");
+  if (m) m.onclick = () => { showAll = true; renderPlaylists(); };
+  view.querySelectorAll(".rail button").forEach(b => b.onclick = () => { current = b.dataset.slug; showAll = false; try { localStorage.setItem("pl-current", current); } catch (e) {} renderPlaylists(); });
   const q = view.querySelector("#q");
   if (q) q.oninput = () => { filter = q.value.trim().toLowerCase(); const pos = q.selectionStart; renderPlaylists(); const n = view.querySelector("#q"); n.focus(); n.setSelectionRange(pos, pos); };
   const s = view.querySelector("#shorts");
@@ -187,7 +200,7 @@ function renderClusters() {
 }
 
 function renderUnplaced() {
-  const rows = DATA.report.unplaced;
+  const rows = DATA.report.unplaced.slice(0, 400);
   view.innerHTML = `<p class="note">Videos that did not reach the ${pct(DATA.report.threshold)} fit threshold for any playlist. Many are short clips whose point depends on the full conversation; some may suggest a playlist that doesn't exist yet.</p>
     <div class="list">${rows.length ? rows.map(r => row(r, null)).join("") : `<p class="empty">Every scored video landed in at least one playlist.</p>`}</div>`;
 }
@@ -207,16 +220,44 @@ STANDALONE_HEAD = '<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n<m
 
 def render(report: dict, clusters: list[dict], videos_by_id: dict, pairs: int, cluster_method: str,
            standalone: bool = True) -> str:
-    """The page as HTML. standalone=False omits the doctype/meta head (for hosts that add their own)."""
+    """The page as HTML. standalone=False omits the doctype/meta head (for hosts that add their own).
+
+    Each video is stored once in "videos"; playlists, clusters and the unplaced list refer to it by id.
+    """
     from playlist_creator.youtube import video_url
 
-    def link(video_id: str) -> dict:
-        v = videos_by_id.get(video_id, {"id": video_id})
-        return {"title": v.get("title", video_id), "url": v.get("url") or video_url(video_id, v.get("kind") == "short")}
+    videos: dict[str, dict] = {}
 
+    def ref(row_or_id) -> str:
+        vid = row_or_id if isinstance(row_or_id, str) else row_or_id["id"]
+        if vid not in videos:
+            v = videos_by_id.get(vid, {"id": vid})
+            s = v.get("summary") or {}
+            videos[vid] = {
+                "title": v.get("title", vid),
+                "url": v.get("url") or video_url(vid, v.get("kind") == "short"),
+                "kind": v.get("kind", "video"),
+                "duration": v.get("duration"),
+                "views": v.get("view_count"),
+                "newcomer": round((v.get("jev") or {}).get("newcomer") or 0.0, 2),
+                "summary": s.get("summary", ""),
+                "key_moment": s.get("key_moment", ""),
+            }
+        return vid
+
+    slim_report = {
+        **{k: report[k] for k in ("threshold", "review_floor", "scored_videos")},
+        "playlists": [
+            {k: p.get(k) for k in ("slug", "name", "description", "source", "why_distinct", "top")}
+            | {"videos": [[ref(r), round(r["fit"], 3)] for r in p["videos"]],
+               "review": [[ref(r), round(r["fit"], 3)] for r in p["review"]]}
+            for p in report["playlists"]
+        ],
+        "unplaced": [ref(r) for r in report["unplaced"]],
+    }
     slim_clusters = [
         {k: c.get(k) for k in ("cluster", "name", "description", "coherent", "size", "cohesion")}
-        | {"videos": [link(i) for i in c["video_ids"]]}
+        | {"videos": [ref(i) for i in c["video_ids"][:8]]}
         for c in clusters
     ]
     method = ("Jev rated every pair of videos for whether they cover the same topic or talking point; spectral "
@@ -224,13 +265,14 @@ def render(report: dict, clusters: list[dict], videos_by_id: dict, pairs: int, c
               if cluster_method == "jev" else
               "Video summaries were embedded and grouped with k-means; an LLM named and explained each group.")
     data = {
-        "report": report,
+        "report": slim_report,
+        "videos": videos,
         "clusters": slim_clusters,
         "pairs": pairs,
         "cluster_note": method + " Videos are listed most central first. Clusters that duplicate a starter playlist were not added as new playlists.",
         "footer": "Generated by PlaylistCreator. Fit and newcomer scores are Jev's probabilities, not human judgements. "
                   "Review borderline videos before publishing a playlist.",
     }
-    payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     page = TEMPLATE.replace("__DATA__", payload)
     return STANDALONE_HEAD + page if standalone else page

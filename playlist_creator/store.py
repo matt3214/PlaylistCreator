@@ -39,9 +39,9 @@ class Store:
         path = self.root / name
         return json.loads(path.read_text(encoding="utf-8")) if path.exists() else default
 
-    def save_json(self, name: str, data) -> Path:
+    def save_json(self, name: str, data, indent: int | None = 2) -> Path:
         path = self.root / name
-        _write_json(path, data)
+        _write_json(path, data, indent)
         return path
 
     def load_embeddings(self, model: str) -> dict[str, np.ndarray]:
@@ -61,8 +61,8 @@ class Store:
         return self.root / f"embeddings-{model.replace('/', '_')}.npz"
 
 
-def _write_json(path: Path, data) -> None:
+def _write_json(path: Path, data, indent: int | None = 2) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=indent), encoding="utf-8")
     os.replace(tmp, path)
